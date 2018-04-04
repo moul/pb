@@ -1,14 +1,15 @@
 PACKAGE_NAME = a_bit_of_everything
 PROTO_FILE = $(PACKAGE_NAME).proto
 PROTOC_OPTS = -I. -Ilib
+PKGMAP = Mexamples/sub/message.proto=github.com/grpc-ecosystem/grpc-gateway/examples/sub
 
 docker:
 	docker run -it --rm -v "$(PWD)/..:$(PWD)/.." -w "$(PWD)" --entrypoint=/bin/sh moul/protoc-gen-gotemplate -xec "make build"
 
 build: ../googleapis/google/api/annotations.proto
 	mkdir -p go-grpc go js py py-grpc java csharp
-	protoc $(PROTOC_OPTS) --go_out=plugins=grpc:go-grpc $(PROTO_FILE)
-	protoc $(PROTOC_OPTS) --go_out=go $(PROTO_FILE)
+	protoc $(PROTOC_OPTS) --go_out=$(PKGMAP),plugins=grpc:go-grpc $(PROTO_FILE)
+	protoc $(PROTOC_OPTS) --go_out=$(PKGMAP):go $(PROTO_FILE)
 	protoc $(PROTOC_OPTS) --js_out=import_style=commonjs,binary:js --grpc_out=js --plugin=protoc-gen-grpc=/usr/bin/grpc_node_plugin $(PROTO_FILE)
 	protoc $(PROTOC_OPTS) --python_out=py $(PROTO_FILE)
 	protoc $(PROTOC_OPTS) --python_out=py-grpc --plugin=protoc-gen-grpc=/usr/bin/grpc_python_plugin --grpc_out=py-grpc $(PROTO_FILE)
